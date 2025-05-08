@@ -11,7 +11,9 @@
   "scripts": {
     "dev": "tsx watch --env-file .env.development ./src/server.ts",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "generate": "dotenvx run -f .env.development -- pnpm drizzle-kit generate",
+    "migrate": "dotenvx run -f .env.development -- pnpm drizzle-kit migrate"
   },
   "dependencies": {
     "@fastify/cors": "11.0.1",
@@ -25,6 +27,7 @@
     "zod": "3.24.4"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "1.43.0",
     "@tsconfig/node22": "22.0.1",
     "@types/node": "22.15.15",
     "eslint": "9.26.0",
