@@ -1,3 +1,5 @@
+import z from 'zod'
+
 type AppErrorConstructor = {
   name: string
   message: string
@@ -35,13 +37,20 @@ export class AppError extends Error {
 
   toResponse(): AppErrorResponse {
     return {
-      details: this.props.details,
-      message: this.message,
       name: this.name,
+      message: this.message,
       status_code: this.props.statusCode,
+      details: this.props.details,
     }
   }
 }
+
+export const validationErrorSchema = z.object({
+  name: z.literal('ValidationError'),
+  message: z.string(),
+  status_code: z.literal(400),
+  details: z.array(z.any()),
+})
 
 type ValidationErrorProps = {
   message: string
@@ -60,6 +69,12 @@ export class ValidationError extends AppError {
     })
   }
 }
+
+export const internalServerErrorSchema = z.object({
+  name: z.literal('InternalServerError'),
+  message: z.literal('An internal server error occurred.'),
+  status_code: z.literal(500),
+})
 
 type InternalServerErrorProps = {
   cause?: unknown

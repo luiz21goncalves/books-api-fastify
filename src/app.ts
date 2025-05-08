@@ -12,12 +12,15 @@ import {
 
 import { author, description, license, name, version } from '../package.json'
 import { errorHandler } from './error-handler'
+import { appRoutes } from './routes'
 
 const app = fastify({
   genReqId: () => {
     return randomUUID()
   },
-  logger: true,
+  logger: {
+    level: 'trace',
+  },
 })
 
 app.setValidatorCompiler(validatorCompiler)
@@ -39,6 +42,8 @@ app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 })
 app.register(scalarFastify, { routePrefix: '/docs' })
+
+app.register(appRoutes)
 
 app.setErrorHandler(errorHandler)
 
