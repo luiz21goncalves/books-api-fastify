@@ -1,0 +1,12 @@
+{
+  "name": "books-api-fastify",
+  "version": "0.0.0",
+  "description": "An example of a Fastify application with observability.",
+  "main": "index.js",
+  "author": "Luiz Gonçalves<luizhbgoncalves@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.10.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
