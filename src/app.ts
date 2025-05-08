@@ -5,11 +5,13 @@ import fastifySwagger from '@fastify/swagger'
 import scalarFastify from '@scalar/fastify-api-reference'
 import fastify from 'fastify'
 import {
+  jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
 
 import { author, description, license, name, version } from '../package.json'
+import { errorHandler } from './error-handler'
 
 const app = fastify({
   genReqId: () => {
@@ -34,7 +36,10 @@ app.register(fastifySwagger, {
       version,
     },
   },
+  transform: jsonSchemaTransform,
 })
 app.register(scalarFastify, { routePrefix: '/docs' })
+
+app.setErrorHandler(errorHandler)
 
 export { app }
