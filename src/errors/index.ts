@@ -90,6 +90,28 @@ export class NotFoundError extends AppError {
   }
 }
 
+export const tooManyRequestsErrorSchema = z.object({
+  name: z.literal('TooManyRequestsError'),
+  message: z.string(),
+  status_code: z.literal(429),
+})
+
+type TooManyRequestsErrorProps = {
+  cause?: unknown
+  message: string
+}
+
+export class TooManyRequestsError extends AppError {
+  constructor({ cause, message }: TooManyRequestsErrorProps) {
+    super({
+      cause,
+      message,
+      name: 'TooManyRequestsError',
+      statusCode: 429,
+    })
+  }
+}
+
 export const internalServerErrorSchema = z.object({
   name: z.literal('InternalServerError'),
   message: z.literal('An internal server error occurred.'),

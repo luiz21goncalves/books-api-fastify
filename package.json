@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fastify/cors": "11.0.1",
+    "@fastify/rate-limit": "10.2.2",
     "@fastify/swagger": "9.5.1",
     "@libsql/client": "0.15.4",
     "@scalar/fastify-api-reference": "1.28.32",
@@ -45,6 +46,6 @@
     "tsx": "4.19.4",
     "typescript": "5.8.3",
     "vitest": "3.1.3",
-     "vitest-environment-drizzle": "link:tests/vitest-environment-drizzle"
+    "vitest-environment-drizzle": "link:tests/vitest-environment-drizzle"
   }
 }

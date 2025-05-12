@@ -9,6 +9,7 @@ import {
   internalServerErrorSchema,
   NotFoundError,
   notfoundErrorSchema,
+  tooManyRequestsErrorSchema,
   validationErrorSchema,
 } from '../errors'
 
@@ -35,6 +36,7 @@ export async function bookRoutes(app: FastifyInstance) {
         tags: ['Books'],
         response: {
           200: z.object({ books: z.array(bookSchema) }),
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -60,6 +62,7 @@ export async function bookRoutes(app: FastifyInstance) {
         response: {
           200: z.object({ book: bookSchema }),
           400: validationErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -95,6 +98,7 @@ export async function bookRoutes(app: FastifyInstance) {
           201: z.object({ book: bookSchema }),
           400: validationErrorSchema,
           404: notfoundErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -141,6 +145,7 @@ export async function bookRoutes(app: FastifyInstance) {
         response: {
           200: z.object({ book: bookSchema }),
           400: validationErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -202,6 +207,7 @@ export async function bookRoutes(app: FastifyInstance) {
         response: {
           204: z.undefined(),
           400: validationErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },

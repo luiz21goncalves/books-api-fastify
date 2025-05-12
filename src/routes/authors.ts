@@ -9,6 +9,7 @@ import {
   internalServerErrorSchema,
   NotFoundError,
   notfoundErrorSchema,
+  tooManyRequestsErrorSchema,
   validationErrorSchema,
 } from '../errors'
 
@@ -33,6 +34,7 @@ export async function authorRoutes(app: FastifyInstance) {
         tags: ['Authors'],
         response: {
           200: z.object({ authors: z.array(authorSchema) }),
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -59,6 +61,7 @@ export async function authorRoutes(app: FastifyInstance) {
           200: z.object({ author: authorSchema }),
           400: validationErrorSchema,
           404: notfoundErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -93,6 +96,7 @@ export async function authorRoutes(app: FastifyInstance) {
         response: {
           201: z.object({ author: authorSchema }),
           400: validationErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -127,6 +131,7 @@ export async function authorRoutes(app: FastifyInstance) {
           200: z.object({ author: authorSchema }),
           400: validationErrorSchema,
           404: notfoundErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -175,6 +180,7 @@ export async function authorRoutes(app: FastifyInstance) {
           204: z.undefined(),
           400: validationErrorSchema,
           404: notfoundErrorSchema,
+          429: tooManyRequestsErrorSchema,
           500: internalServerErrorSchema,
         },
       },
