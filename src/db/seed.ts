@@ -4,10 +4,11 @@ import { db } from './connection'
 import { authors, books } from './schemas'
 
 async function seed() {
-  await db.delete(authors)
   await db.delete(books)
+  await db.delete(authors)
 
-  const authorsData = Array.from({ length: 100 }).map(() => {
+  const length = faker.helpers.rangeToNumber({ min: 100, max: 200 })
+  const authorsData = Array.from({ length }).map(() => {
     return {
       name: faker.book.author(),
       avatar_url: faker.image.avatar(),
@@ -20,13 +21,16 @@ async function seed() {
     .returning()
 
   for (const author of createdAuthors) {
-    const booksData = Array.from({
-      length: faker.helpers.rangeToNumber({ min: 1, max: 20 }),
-    }).map(() => {
+    const length = faker.helpers.rangeToNumber({ min: 1, max: 20 })
+
+    const booksData = Array.from({ length }).map(() => {
       return {
         author_id: author.id,
         name: faker.book.title(),
-        cover_url: faker.image.urlLoremFlickr({ category: 'books' }),
+        cover_url: faker.image.url({
+          height: 600,
+          width: 400,
+        }),
       }
     })
 

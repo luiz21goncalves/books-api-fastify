@@ -1,10 +1,16 @@
-import { randomUUID } from 'node:crypto'
-
+import { eq } from 'drizzle-orm'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 
-import { internalServerErrorSchema, validationErrorSchema } from '../errors'
+import { db } from '../db/connection'
+import { books } from '../db/schemas'
+import {
+  internalServerErrorSchema,
+  NotFoundError,
+  notfoundErrorSchema,
+  validationErrorSchema,
+} from '../errors'
 
 const bookSchema = z.object({
   id: z.string().uuid(),
@@ -21,15 +27,6 @@ const bookInputSchema = z.object({
   author_id: z.string().uuid(),
 })
 
-const book = {
-  id: randomUUID(),
-  cover_url: 'http://example.com',
-  name: 'John Doe',
-  author_id: randomUUID(),
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-}
-
 export async function bookRoutes(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
     '/books',
@@ -43,9 +40,14 @@ export async function bookRoutes(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      request.log.debug({ book })
+      const booksResponse = await db.query.books.findMany({
+        orderBy(fields, { desc }) {
+          return desc(fields.created_at)
+        },
+      })
+      request.log.debug({ books: booksResponse })
 
-      return reply.status(201).send({ books: [book] })
+      return reply.status(200).send({ books: booksResponse })
     },
   )
 
@@ -66,7 +68,20 @@ export async function bookRoutes(app: FastifyInstance) {
       const { id } = request.params
       request.log.debug({ id })
 
-      return reply.status(201).send({ book })
+      const book = await db.query.books.findFirst({
+        where(fields) {
+          return eq(fields.id, id)
+        },
+      })
+      request.log.debug({ book })
+
+      if (!book) {
+        throw new NotFoundError({
+          message: 'Book not found.',
+        })
+      }
+
+      return reply.status(200).send({ book })
     },
   )
 
@@ -79,6 +94,7 @@ export async function bookRoutes(app: FastifyInstance) {
         response: {
           201: z.object({ book: bookSchema }),
           400: validationErrorSchema,
+          404: notfoundErrorSchema,
           500: internalServerErrorSchema,
         },
       },
@@ -87,6 +103,23 @@ export async function bookRoutes(app: FastifyInstance) {
       const { author_id, cover_url, name } = request.body
       request.log.debug({ author_id, cover_url, name })
 
+      const author = await db.query.authors.findFirst({
+        where(fields) {
+          return eq(fields.id, author_id)
+        },
+      })
+      request.log.debug({ author })
+
+      if (!author) {
+        throw new NotFoundError({
+          message: 'Author not found.',
+        })
+      }
+
+      const [book] = await db
+        .insert(books)
+        .values({ author_id, cover_url, name })
+        .returning()
       request.log.debug({ book })
 
       return reply.status(201).send({ book })
@@ -99,7 +132,12 @@ export async function bookRoutes(app: FastifyInstance) {
       schema: {
         tags: ['Books'],
         params: z.object({ id: z.string().uuid() }),
-        body: bookInputSchema,
+        body: bookInputSchema.partial().refine(
+          (obj) => {
+            return Object.keys(obj).filter(Boolean).length >= 1
+          },
+          { message: 'Send "cover_url", "name" or "author_id"' },
+        ),
         response: {
           200: z.object({ book: bookSchema }),
           400: validationErrorSchema,
@@ -109,11 +147,49 @@ export async function bookRoutes(app: FastifyInstance) {
     },
     async (request, reply) => {
       const { id } = request.params
-      request.log.debug({ id })
+      const { author_id, cover_url, name } = request.body
+      request.log.debug({ id, author_id, cover_url, name })
 
-      request.log.debug({ book })
+      const savedBook = await db.query.books.findFirst({
+        where(fields) {
+          return eq(fields.id, id)
+        },
+      })
+      request.log.debug({ book: savedBook })
 
-      return reply.status(201).send({ book })
+      if (!savedBook) {
+        throw new NotFoundError({
+          message: 'Book not found.',
+        })
+      }
+
+      if (author_id) {
+        const author = await db.query.authors.findFirst({
+          where(fields) {
+            return eq(fields.id, author_id)
+          },
+        })
+
+        if (!author) {
+          throw new NotFoundError({
+            message: 'Author not found.',
+          })
+        }
+      }
+
+      const [updatedBook] = await db
+        .update(books)
+        .set({
+          ...savedBook,
+          author_id,
+          cover_url,
+          name,
+          updated_at: new Date().toISOString(),
+        })
+        .where(eq(books.id, id))
+        .returning()
+
+      return reply.status(200).send({ book: updatedBook })
     },
   )
 
@@ -134,7 +210,20 @@ export async function bookRoutes(app: FastifyInstance) {
       const { id } = request.params
       request.log.debug({ id })
 
+      const book = await db.query.books.findFirst({
+        where(fields) {
+          return eq(fields.id, id)
+        },
+      })
       request.log.debug({ book })
+
+      if (!book) {
+        throw new NotFoundError({
+          message: 'Book not found.',
+        })
+      }
+
+      await db.delete(books).where(eq(books.id, id))
 
       return reply.status(204).send()
     },

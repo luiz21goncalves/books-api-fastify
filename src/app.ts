@@ -11,6 +11,7 @@ import {
 } from 'fastify-type-provider-zod'
 
 import { author, description, license, name, version } from '../package.json'
+import { ENV } from './env'
 import { errorHandler } from './error-handler'
 import { appRoutes } from './routes'
 
@@ -19,7 +20,7 @@ const app = fastify({
     return randomUUID()
   },
   logger: {
-    level: 'trace',
+    level: ENV.LOG_LEVEL,
   },
 })
 

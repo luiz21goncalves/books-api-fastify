@@ -70,6 +70,26 @@ export class ValidationError extends AppError {
   }
 }
 
+export const notfoundErrorSchema = z.object({
+  name: z.literal('NotFoundError'),
+  message: z.string(),
+  status_code: z.literal(404),
+})
+
+type NotFoundErrorProps = {
+  message: string
+}
+
+export class NotFoundError extends AppError {
+  constructor({ message }: NotFoundErrorProps) {
+    super({
+      message,
+      name: 'NotFoundError',
+      statusCode: 404,
+    })
+  }
+}
+
 export const internalServerErrorSchema = z.object({
   name: z.literal('InternalServerError'),
   message: z.literal('An internal server error occurred.'),
