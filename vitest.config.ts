@@ -7,7 +7,6 @@ export default defineConfig({
       reporter: ['text', 'text-summary', 'lcov'],
       exclude: [...defaultExclude, './drizzle.config.ts'],
     },
-    setupFiles: ['./tests/setup.ts'],
-    fileParallelism: false,
+    environment: 'drizzle',
   },
 })
